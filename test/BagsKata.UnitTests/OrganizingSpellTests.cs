@@ -8,43 +8,34 @@ namespace BagsKata.UnitTests;
 public class OrganizingSpellTests
 {
 		[Fact]
-		public void OrganizingSpell_sorts_backpack_containing_clothes_by_name_asc()
+		public void OrganizingSpell_sorts_items_into_backpack()
 		{
-				var backpack = new Backpack();
-				backpack.AddItems(Items.Silk, Items.Leather);
-
-				var sorted = OrganizingSpell.Cast(backpack);
-				sorted.Items.Select(i => i.Name).Should()
-					.Equal(Items.Leather.Name, Items.Silk.Name)
-					.And.BeInAscendingOrder();
+			var backpack = OrganizingSpell.Cast(Items.Silk, Items.Leather, Items.Gold);
+			backpack.Items.Select(i => i.Name).Should()
+				.Equal(Items.Gold.Name, Items.Leather.Name, Items.Silk.Name)
+				.And.BeInAscendingOrder();
 		}
 }
 
 public record Backpack
 {
-		public IEnumerable<Item> Items { get; set; } = new List<Item>();
-		
-		public void AddItems(params Item[] items)
-		{
-			Items = Items.Concat(items);
-		}
+		public IEnumerable<Item> Items { get; }
+
+		public Backpack(IEnumerable<Item> items) => Items = items;
 }
 
 public static class Items
 {
-		public static Item Leather = new Item("Leather");
-		public static Item Silk = new Item("Silk");
+		public static Item Leather => new Item("Leather");
+		public static Item Silk => new Item("Silk");
+		public static Item Gold => new Item("Gold");
 }
 
 public record Item(string Name);
 
 public static class OrganizingSpell
 {
-		public static Backpack Cast(Backpack backpack)
-		{
-				var result = new Backpack();
-				result.AddItems(backpack.Items.OrderBy(i => i.Name).ToArray());
-				return result;
-		}
+		public static Backpack Cast(params Item[] items) =>
+			new Backpack(items.OrderBy(i => i.Name));
 }
 
